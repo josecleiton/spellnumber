@@ -2,6 +2,9 @@ package spellnumber
 
 import (
 	"bufio"
+	"fmt"
+	"math"
+	"math/big"
 	"os"
 	"strings"
 )
@@ -9,9 +12,10 @@ import (
 type TokenType int
 
 type Token struct {
-	Type  TokenType
-	Value string
-	Spell string
+	Type   TokenType
+	Value  string
+	Spell  string
+	Number *big.Int
 }
 
 const (
@@ -29,6 +33,7 @@ const (
 	TOKEN_FACTORIAL
 
 	TOKEN_NUMBER
+	TOKEN_NUMBER_PARSED
 )
 
 type Lexer struct {
@@ -73,7 +78,6 @@ func NewLexer(inputFile *os.File) *Lexer {
 			"dezoito":         {state: 6, value: "18"},
 			"dezenove":        {state: 6, value: "19"},
 			"vinte":           {state: 7, value: "20"},
-			"e":               {state: 8, value: "0"},
 			"trinta":          {state: 7, value: "30"},
 			"quarenta":        {state: 7, value: "40"},
 			"cinquenta":       {state: 7, value: "50"},
@@ -120,6 +124,7 @@ func NewLexer(inputFile *os.File) *Lexer {
 			"tridecilhoes":    {state: 11, value: "1000000000000000000000000000000000000000000"},
 			"quatradecilhao":  {state: 11, value: "1000000000000000000000000000000000000000000000"},
 			"quatradecilhoes": {state: 11, value: "1000000000000000000000000000000000000000000000"},
+			"e":               {state: 200, value: "0"},
 		},
 	}
 }
@@ -132,104 +137,237 @@ func (l *Lexer) NextLine() {
 	index := 0
 
 	state := 0
+
+	numberTokens := make([]Token, 0)
 	for {
 		if index >= len(words) {
+			if len(numberTokens) > 0 {
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+			}
 			break
 		}
 
-		w := words[index]
+		lexeme := words[index]
 
-		if strings.Contains(w, "\n") {
-			w = strings.ReplaceAll(w, "\n", "")
+		fmt.Printf("state: %d | lexeme: %s\n", state, lexeme)
+
+		if strings.Contains(lexeme, "\n") {
+			lexeme = strings.ReplaceAll(lexeme, "\n", "")
 		}
 
 		if state == 0 {
-			if w == "mais" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_PLUS, Value: w})
-			} else if w == "menos" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_MINUS, Value: w})
-			} else if w == "vezes" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_TIMES, Value: w})
-			} else if w == "elevado" {
+			if lexeme == "mais" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_PLUS, Value: lexeme})
+			} else if lexeme == "menos" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_MINUS, Value: lexeme})
+			} else if lexeme == "vezes" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_TIMES, Value: lexeme})
+			} else if lexeme == "elevado" {
 				state = 1
-			} else if w == "abre" {
+			} else if lexeme == "abre" {
 				state = 2
-			} else if w == "fecha" {
+			} else if lexeme == "fecha" {
 				state = 3
-			} else if w == "fatorial" {
+			} else if lexeme == "fatorial" {
 				state = 4
-			} else if w == "dividido" {
+			} else if lexeme == "dividido" {
 				state = 5
 			} else {
-				if val, ok := l.numberDict[w]; ok {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: w})
+				if val, ok := l.numberDict[lexeme]; ok {
+					numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
 
 					state = val.state
 				} else {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 					return
 				}
 			}
 		} else if state == 1 {
-			if w != "por" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+			if lexeme != "por" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 				return
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_POWER, Value: w})
+			l.Tokens = append(l.Tokens, Token{Type: TOKEN_POWER, Value: lexeme})
 
 			state = 0
 		} else if state == 2 {
-			if w != "parentese" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+			if lexeme != "parentese" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 				return
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: w})
+			l.Tokens = append(l.Tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: lexeme})
 
 			state = 0
 		} else if state == 3 {
-			if w != "parentese" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+			if lexeme != "parentese" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 				return
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: w})
+			l.Tokens = append(l.Tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: lexeme})
 
 			state = 0
 		} else if state == 4 {
-			if w != "de" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+			if lexeme != "de" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 				return
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_FACTORIAL, Value: w})
+			l.Tokens = append(l.Tokens, Token{Type: TOKEN_FACTORIAL, Value: lexeme})
 
 			state = 0
 		} else if state == 5 {
-			if w != "por" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+			if lexeme != "por" {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 				return
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_DIVIDE, Value: w})
+			l.Tokens = append(l.Tokens, Token{Type: TOKEN_DIVIDE, Value: lexeme})
 
 			state = 0
 		} else if state == 6 {
-			if val, ok := l.numberDict[w]; ok {
+			if val, ok := l.numberDict[lexeme]; ok {
 				if val.state != 11 {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: w})
+					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 					return
 				}
 
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: w})
+				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+
+				state = 8
 			} else {
 				index--
+
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+
+				state = 0
+			}
+
+		} else if state == 7 {
+			if _, ok := l.numberDict[lexeme]; lexeme != "e" && ok {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				return
+			}
+
+			if lexeme == "e" {
+				state = 6
+			} else {
+				state = 0
+				index--
+
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+			}
+		} else if state == 8 {
+			if val, ok := l.numberDict[lexeme]; ok {
+				if val.state > 10 {
+					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					return
+				}
+
+				state = val.state
+
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+			} else {
+				index--
+
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+
+				state = 0
+			}
+		} else if state == 9 {
+			if val, ok := l.numberDict[lexeme]; ok {
+				if val.state != 11 {
+					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					return
+				}
+
+				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+			} else {
+				index--
+
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
 			}
 
 			state = 0
+		} else if state == 9 {
+			if val, ok := l.numberDict[lexeme]; ok {
+				if val.state == 6 || val.state == 7 {
+					state = val.state
+				} else if val.state == 11 {
+					state = 0
+
+				} else {
+					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					return
+				}
+
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+			}
+		} else if state == 10 {
+			if _, ok := l.numberDict[lexeme]; lexeme != "e" && ok {
+				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				return
+			}
+
+			if lexeme == "e" {
+				state = 9
+			} else {
+				state = 0
+				index--
+
+				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+			}
 		}
 
 		index++
 	}
+}
+
+func getNumberTokenFromList(numberTokens []Token) Token {
+	if len(numberTokens) == 0 {
+		return Token{Type: TOKEN_ERROR, Value: "0"}
+	}
+
+	order := 1
+	orderMilhar := len("1000")
+
+	number := big.NewInt(0)
+
+	for i := len(numberTokens) - 1; i >= 0; i-- {
+		token := numberTokens[i]
+
+		fmt.Println(token)
+
+		tokenOrder := len(token.Value)
+
+		if tokenOrder >= orderMilhar {
+			if order > orderMilhar && tokenOrder <= order {
+				return Token{Type: TOKEN_ERROR, Value: "0"}
+			}
+
+			order = tokenOrder
+
+			continue
+		}
+
+		currentUnit := big.NewInt(0)
+
+		currentUnit, ok := currentUnit.SetString(token.Value, 10)
+
+		if !ok {
+			return Token{Type: TOKEN_ERROR, Value: "0"}
+		}
+
+		orderNumber := big.NewInt(int64(math.Pow(10, float64(order-1))))
+
+		currentNumber := currentUnit.Mul(currentUnit, orderNumber)
+
+		fmt.Printf("%s * %s = %s\n", token.Value, orderNumber.String(), currentNumber.String())
+
+		number = number.Add(number, currentNumber)
+	}
+
+	return Token{Type: TOKEN_NUMBER_PARSED, Value: number.String(), Number: number}
 }
