@@ -1,20 +1,29 @@
 package spellnumber
 
 import (
+	"io"
 	"log"
 	"math/big"
+	"os"
 )
 
 type Parser struct {
-	index  int
-	tokens []Token
+	index   int
+	tokens  []Token
+	verbose bool
 }
 
-func NewParser(tokens []Token) *Parser {
-	return &Parser{tokens: tokens}
+func NewParser(tokens []Token, verbose bool) *Parser {
+	return &Parser{tokens: tokens, verbose: verbose}
 }
 
 func (p *Parser) Parse() *big.Int {
+	if !p.verbose {
+		log.SetOutput(io.Discard)
+
+		defer log.SetOutput(os.Stdout)
+	}
+
 	if len(p.tokens) == 0 {
 		return big.NewInt(0)
 	}

@@ -1,12 +1,18 @@
 package spellnumber
 
-import "math/big"
+import (
+	"io"
+	"log"
+	"math/big"
+	"os"
+)
 
 type Speller struct {
 	thousands map[int][]string
+	verbose   bool
 }
 
-func NewSpeller() *Speller {
+func NewSpeller(verbose bool) *Speller {
 	return &Speller{
 		thousands: map[int][]string{
 			1:  {"mil"},
@@ -30,5 +36,11 @@ func NewSpeller() *Speller {
 }
 
 func (s Speller) Spell(number *big.Int) string {
+	if !s.verbose {
+		log.SetOutput(io.Discard)
+
+		defer log.SetOutput(os.Stdout)
+	}
+
 	return "not implemented"
 }
