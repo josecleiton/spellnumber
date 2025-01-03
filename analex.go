@@ -31,13 +31,13 @@ const (
 	TOKEN_TIMES
 	TOKEN_POWER
 	TOKEN_FACTORIAL
+	TOKEN_MOD
 
 	TOKEN_NUMBER
 	TOKEN_NUMBER_PARSED
 )
 
 type Lexer struct {
-	Tokens       []Token
 	scannerStdIn *bufio.Reader
 	numberDict   map[string]numberState
 }
@@ -55,7 +55,6 @@ func NewLexer(inputFile *os.File) *Lexer {
 	}
 
 	return &Lexer{
-		Tokens:       make([]Token, 0, 1024),
 		scannerStdIn: bufio.NewReader(file),
 		numberDict: map[string]numberState{
 			"um":              {state: 6, value: "1"},
@@ -124,13 +123,19 @@ func NewLexer(inputFile *os.File) *Lexer {
 			"tridecilhoes":    {state: 11, value: "1000000000000000000000000000000000000000000"},
 			"quatradecilhao":  {state: 11, value: "1000000000000000000000000000000000000000000000"},
 			"quatradecilhoes": {state: 11, value: "1000000000000000000000000000000000000000000000"},
-			"e":               {state: 200, value: "0"},
+			"e":               {state: 8, value: "0"},
 		},
 	}
 }
 
 func (l *Lexer) NextLine() {
 	line, _ := l.scannerStdIn.ReadString('\n')
+
+	l.ParseLine(line)
+}
+
+func (l *Lexer) ParseLine(line string) []Token {
+	tokens := make([]Token, 0, 64)
 
 	words := strings.Split(line, " ")
 
@@ -142,7 +147,7 @@ func (l *Lexer) NextLine() {
 	for {
 		if index >= len(words) {
 			if len(numberTokens) > 0 {
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 			}
 			break
 		}
@@ -157,11 +162,11 @@ func (l *Lexer) NextLine() {
 
 		if state == 0 {
 			if lexeme == "mais" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_PLUS, Value: lexeme})
+				tokens = append(tokens, Token{Type: TOKEN_PLUS, Value: lexeme})
 			} else if lexeme == "menos" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_MINUS, Value: lexeme})
+				tokens = append(tokens, Token{Type: TOKEN_MINUS, Value: lexeme})
 			} else if lexeme == "vezes" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_TIMES, Value: lexeme})
+				tokens = append(tokens, Token{Type: TOKEN_TIMES, Value: lexeme})
 			} else if lexeme == "elevado" {
 				state = 1
 			} else if lexeme == "abre" {
@@ -178,60 +183,60 @@ func (l *Lexer) NextLine() {
 
 					state = val.state
 				} else {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-					return
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
 				}
 			}
 		} else if state == 1 {
 			if lexeme != "por" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_POWER, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_POWER, Value: lexeme})
 
 			state = 0
 		} else if state == 2 {
 			if lexeme != "parentese" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: lexeme})
 
 			state = 0
 		} else if state == 3 {
 			if lexeme != "parentese" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: lexeme})
 
 			state = 0
 		} else if state == 4 {
 			if lexeme != "de" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_FACTORIAL, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_FACTORIAL, Value: lexeme})
 
 			state = 0
 		} else if state == 5 {
 			if lexeme != "por" {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
-			l.Tokens = append(l.Tokens, Token{Type: TOKEN_DIVIDE, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_DIVIDE, Value: lexeme})
 
 			state = 0
 		} else if state == 6 {
 			if val, ok := l.numberDict[lexeme]; ok {
 				if val.state != 11 {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-					return
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
 				}
 
 				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
@@ -240,15 +245,15 @@ func (l *Lexer) NextLine() {
 			} else {
 				index--
 
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 
 				state = 0
 			}
 
 		} else if state == 7 {
 			if _, ok := l.numberDict[lexeme]; lexeme != "e" && ok {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
+				tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+				break
 			}
 
 			if lexeme == "e" {
@@ -257,37 +262,40 @@ func (l *Lexer) NextLine() {
 				state = 0
 				index--
 
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 			}
 		} else if state == 8 {
 			if val, ok := l.numberDict[lexeme]; ok {
 				if val.state > 10 {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-					return
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
 				}
 
 				state = val.state
 
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+				if val.state != 8 {
+
+					numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+				}
 			} else {
 				index--
 
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 
 				state = 0
 			}
 		} else if state == 9 {
 			if val, ok := l.numberDict[lexeme]; ok {
 				if val.state != 11 {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-					return
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
 				}
 
 				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
 			} else {
 				index--
 
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 			}
 
 			state = 0
@@ -299,36 +307,46 @@ func (l *Lexer) NextLine() {
 					state = 0
 
 				} else {
-					l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-					return
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
 				}
 
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
 			}
 		} else if state == 10 {
-			if _, ok := l.numberDict[lexeme]; lexeme != "e" && ok {
-				l.Tokens = append(l.Tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
-				return
-			}
+			if val, ok := l.numberDict[lexeme]; ok {
+				if val.state == 6 || val.state == 7 {
+					state = val.state
+				} else if val.state == 11 {
+					state = 8
+				} else {
+					tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+					break
+				}
 
-			if lexeme == "e" {
+				numberTokens = append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme})
+			} else if lexeme == "e" {
 				state = 9
 			} else {
 				state = 0
 				index--
 
-				l.Tokens = append(l.Tokens, getNumberTokenFromList(numberTokens))
+				tokens = append(tokens, getNumberTokenFromList(numberTokens))
 			}
 		}
 
 		index++
 	}
+
+	return tokens
 }
 
 func getNumberTokenFromList(numberTokens []Token) Token {
 	if len(numberTokens) == 0 {
 		return Token{Type: TOKEN_ERROR, Value: "0"}
 	}
+
+	fmt.Println(numberTokens)
 
 	order := 1
 	orderMilhar := len("1000")
