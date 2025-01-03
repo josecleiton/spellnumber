@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/big"
 
 	spellnumber "github.com/josecleiton/spellnumber"
 )
@@ -12,11 +11,11 @@ func main() {
 
 	tokens := lexer.ParseLine("duzentos mil e trezentos e cinquenta e um")
 
-	parser := spellnumber.NewParser()
+	fmt.Printf("Tokens: %v\n", tokens)
 
-	parser.Parse(tokens)
+	parser := spellnumber.NewParser(tokens)
 
-	fmt.Println(big.NewInt(0).MulRange(1, 100).String())
+	result := parser.Parse()
 
-	fmt.Println(tokens)
+	fmt.Printf("Result: %v\n", result)
 }
