@@ -163,7 +163,7 @@ func (l *Lexer) ParseLine(line string) []Token {
 			if len(numberTokens) > 0 {
 				tokens = append(tokens, l.getNumberTokenFromList(numberTokens))
 
-				clear(numberTokens)
+				numberTokens = make([]Token, 0, len(numberTokens)+1)
 			}
 
 			state, numberTokens, tokens = l.q0(lexeme, numberTokens, tokens)
@@ -225,7 +225,7 @@ func (l *Lexer) ParseLine(line string) []Token {
 	if len(numberTokens) > 0 {
 		tokens = append(tokens, l.getNumberTokenFromList(numberTokens))
 
-		clear(numberTokens)
+		numberTokens = make([]Token, 0, len(numberTokens)+1)
 	}
 
 	return tokens
@@ -233,15 +233,15 @@ func (l *Lexer) ParseLine(line string) []Token {
 
 func (l Lexer) q0(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme == "mais" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_PLUS, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_PLUS, Value: "+"})
 	}
 
 	if lexeme == "menos" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_MINUS, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_MINUS, Value: "-"})
 	}
 
 	if lexeme == "vezes" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_TIMES, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_TIMES, Value: "*"})
 	}
 
 	if lexeme == "elevado" {
@@ -276,7 +276,7 @@ func (l Lexer) q1(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_POWER, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_POWER, Value: "^"})
 }
 
 func (l Lexer) checkParenthesis(lexeme string) bool {
@@ -286,7 +286,7 @@ func (l Lexer) checkParenthesis(lexeme string) bool {
 
 func (l Lexer) q2(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if l.checkParenthesis(lexeme) {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: "("})
 	}
 
 	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
@@ -294,7 +294,7 @@ func (l Lexer) q2(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 func (l Lexer) q3(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if l.checkParenthesis(lexeme) {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: ")"})
 	}
 
 	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
@@ -306,7 +306,7 @@ func (l Lexer) q4(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_FACTORIAL, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_FACTORIAL, Value: "!"})
 }
 
 func (l Lexer) q5(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -314,7 +314,7 @@ func (l Lexer) q5(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_DIVIDE, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_DIVIDE, Value: "/"})
 }
 
 func (l Lexer) q6(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
