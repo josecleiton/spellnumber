@@ -18,4 +18,8 @@ func main() {
 	result := parser.Parse()
 
 	fmt.Printf("Result: %v\n", result)
+
+	speller := spellnumber.NewSpeller()
+
+	fmt.Printf("Spell: %v\n", speller.Spell(result))
 }
