@@ -36,25 +36,38 @@ func (p *Parser) Parse() *big.Int {
 }
 
 func (p *Parser) expression() *big.Int {
+	sym := p.sym()
+	if sym == TOKEN_PLUS || sym == TOKEN_MINUS {
+		p.nextSym()
+	}
+
 	first := p.term()
 
-	for p.sym() == TOKEN_PLUS || p.sym() == TOKEN_MINUS {
+	if sym == TOKEN_MINUS {
+		first = first.Mul(big.NewInt(-1), first)
+	}
+
+	acceptedSymbols := map[TokenType]bool{
+		TOKEN_PLUS:  true,
+		TOKEN_MINUS: true,
+	}
+
+	for {
+		if val, ok := acceptedSymbols[p.sym()]; !(ok && val) {
+			break
+		}
+
 		op := p.sym()
+
 		p.nextSym()
 
 		second := p.term()
 
-		if op == TOKEN_PLUS {
-			first = big.NewInt(0).Add(first, second)
-
-			continue
-		}
-
 		if op == TOKEN_MINUS {
-			first = big.NewInt(0).Sub(first, second)
-
-			continue
+			second = second.Mul(big.NewInt(-1), second)
 		}
+
+		first = big.NewInt(1).Add(first, second)
 	}
 
 	return first
@@ -63,10 +76,19 @@ func (p *Parser) expression() *big.Int {
 func (p *Parser) term() *big.Int {
 	first := p.factorial()
 
-	sym := p.sym()
+	acceptedSymbols := map[TokenType]bool{
+		TOKEN_TIMES:  true,
+		TOKEN_DIVIDE: true,
+		TOKEN_POWER:  true,
+		TOKEN_MOD:    true,
+	}
 
-	for sym == TOKEN_TIMES || sym == TOKEN_DIVIDE || sym == TOKEN_POWER || sym == TOKEN_MOD {
-		op := sym
+	for {
+		if val, ok := acceptedSymbols[p.sym()]; !(ok && val) {
+			break
+		}
+
+		op := p.sym()
 
 		p.nextSym()
 
@@ -125,6 +147,8 @@ func (p *Parser) parenthesis() *big.Int {
 		return term
 	}
 
+	defer p.nextSym()
+
 	return p.value()
 }
 
@@ -132,6 +156,10 @@ func (p *Parser) value() *big.Int {
 	return p.tokens[p.index].Number
 }
 func (p *Parser) sym() TokenType {
+	if len(p.tokens) == 0 || p.index >= len(p.tokens) {
+		return TOKEN_EOF
+	}
+
 	return p.tokens[p.index].Type
 }
 
