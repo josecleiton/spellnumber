@@ -90,43 +90,43 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 			"noventa":         {state: 7, value: "90"},
 			"cem":             {state: 8, value: "100"},
 			"cento":           {state: 9, value: "100"},
-			"duzentos":        {state: 9, value: "200"},
-			"trezentos":       {state: 9, value: "300"},
-			"quatrocentos":    {state: 9, value: "400"},
-			"quinhentos":      {state: 9, value: "500"},
-			"seiscentos":      {state: 9, value: "600"},
-			"setecentos":      {state: 9, value: "700"},
-			"oitocentos":      {state: 9, value: "800"},
-			"novecentos":      {state: 9, value: "900"},
-			"mil":             {state: 12, value: "1000"},
-			"milhao":          {state: 12, value: "1000000"},
-			"milhoes":         {state: 12, value: "1000000"},
-			"bilhao":          {state: 12, value: "1000000000"},
-			"bilhoes":         {state: 12, value: "1000000000"},
-			"trilhao":         {state: 12, value: "1000000000000"},
-			"trilhoes":        {state: 12, value: "1000000000000"},
-			"quadrilhao":      {state: 12, value: "1000000000000000"},
-			"quadrilhoes":     {state: 12, value: "1000000000000000"},
-			"quintilhao":      {state: 12, value: "1000000000000000000"},
-			"quintilhoes":     {state: 12, value: "1000000000000000000"},
-			"sextilhao":       {state: 12, value: "1000000000000000000000"},
-			"sextilhoes":      {state: 12, value: "1000000000000000000000"},
-			"septilhao":       {state: 12, value: "1000000000000000000000000"},
-			"septilhoes":      {state: 12, value: "1000000000000000000000000"},
-			"octilhao":        {state: 12, value: "1000000000000000000000000000"},
-			"octilhoes":       {state: 12, value: "1000000000000000000000000000"},
-			"nonilhao":        {state: 12, value: "1000000000000000000000000000000"},
-			"nonilhoes":       {state: 12, value: "1000000000000000000000000000000"},
-			"decilhao":        {state: 12, value: "1000000000000000000000000000000000"},
-			"decilhoes":       {state: 12, value: "1000000000000000000000000000000000"},
-			"undecilhao":      {state: 12, value: "1000000000000000000000000000000000000"},
-			"undecilhoes":     {state: 12, value: "1000000000000000000000000000000000000"},
-			"duodecilhao":     {state: 12, value: "1000000000000000000000000000000000000000"},
-			"duodecilhoes":    {state: 12, value: "1000000000000000000000000000000000000000"},
-			"tridecilhao":     {state: 12, value: "1000000000000000000000000000000000000000000"},
-			"tridecilhoes":    {state: 12, value: "1000000000000000000000000000000000000000000"},
-			"quatradecilhao":  {state: 12, value: "1000000000000000000000000000000000000000000000"},
-			"quatradecilhoes": {state: 12, value: "1000000000000000000000000000000000000000000000"},
+			"duzentos":        {state: 10, value: "200"},
+			"trezentos":       {state: 10, value: "300"},
+			"quatrocentos":    {state: 10, value: "400"},
+			"quinhentos":      {state: 10, value: "500"},
+			"seiscentos":      {state: 10, value: "600"},
+			"setecentos":      {state: 10, value: "700"},
+			"oitocentos":      {state: 10, value: "800"},
+			"novecentos":      {state: 10, value: "900"},
+			"mil":             {state: 13, value: "1000"},
+			"milhao":          {state: 13, value: "1000000"},
+			"milhoes":         {state: 13, value: "1000000"},
+			"bilhao":          {state: 13, value: "1000000000"},
+			"bilhoes":         {state: 13, value: "1000000000"},
+			"trilhao":         {state: 13, value: "1000000000000"},
+			"trilhoes":        {state: 13, value: "1000000000000"},
+			"quadrilhao":      {state: 13, value: "1000000000000000"},
+			"quadrilhoes":     {state: 13, value: "1000000000000000"},
+			"quintilhao":      {state: 13, value: "1000000000000000000"},
+			"quintilhoes":     {state: 13, value: "1000000000000000000"},
+			"sextilhao":       {state: 13, value: "1000000000000000000000"},
+			"sextilhoes":      {state: 13, value: "1000000000000000000000"},
+			"septilhao":       {state: 13, value: "1000000000000000000000000"},
+			"septilhoes":      {state: 13, value: "1000000000000000000000000"},
+			"octilhao":        {state: 13, value: "1000000000000000000000000000"},
+			"octilhoes":       {state: 13, value: "1000000000000000000000000000"},
+			"nonilhao":        {state: 13, value: "1000000000000000000000000000000"},
+			"nonilhoes":       {state: 13, value: "1000000000000000000000000000000"},
+			"decilhao":        {state: 13, value: "1000000000000000000000000000000000"},
+			"decilhoes":       {state: 13, value: "1000000000000000000000000000000000"},
+			"undecilhao":      {state: 13, value: "1000000000000000000000000000000000000"},
+			"undecilhoes":     {state: 13, value: "1000000000000000000000000000000000000"},
+			"duodecilhao":     {state: 13, value: "1000000000000000000000000000000000000000"},
+			"duodecilhoes":    {state: 13, value: "1000000000000000000000000000000000000000"},
+			"tridecilhao":     {state: 13, value: "1000000000000000000000000000000000000000000"},
+			"tridecilhoes":    {state: 13, value: "1000000000000000000000000000000000000000000"},
+			"quatradecilhao":  {state: 13, value: "1000000000000000000000000000000000000000000000"},
+			"quatradecilhoes": {state: 13, value: "1000000000000000000000000000000000000000000000"},
 			"e":               {state: 200, value: "0"},
 		},
 	}
@@ -154,8 +154,16 @@ func (l *Lexer) ParseLine(line string) []Token {
 	state := 0
 
 	numberTokens := make([]Token, 0)
-	for index < len(words) {
-		lexeme := words[index]
+	for {
+		lexeme := ""
+
+		if index < len(words) {
+			lexeme = words[index]
+		}
+
+		if lexeme == "" && state == 0 {
+			break
+		}
 
 		if l.verbose {
 			log.Printf("state: %d | lexeme: %s\n", state, lexeme)
@@ -195,24 +203,30 @@ func (l *Lexer) ParseLine(line string) []Token {
 			if state == 0 {
 				index--
 			}
-		} else if state == 9 {
-			state, numberTokens, tokens = l.q9(lexeme, numberTokens, tokens)
+		} else if state == 8 {
+			state, numberTokens, tokens = l.q8(lexeme, numberTokens, tokens)
 
 			if state == 0 {
 				index--
 			}
 		} else if state == 10 {
 			state, numberTokens, tokens = l.q10(lexeme, numberTokens, tokens)
-		} else if state == 11 {
-			state, numberTokens, tokens = l.q11(lexeme, numberTokens, tokens)
-		} else if state == 12 {
-			state, numberTokens, tokens = l.q12(lexeme, numberTokens, tokens)
 
 			if state == 0 {
 				index--
 			}
+		} else if state == 11 {
+			state, numberTokens, tokens = l.q11(lexeme, numberTokens, tokens)
+		} else if state == 12 {
+			state, numberTokens, tokens = l.q12(lexeme, numberTokens, tokens)
 		} else if state == 13 {
 			state, numberTokens, tokens = l.q13(lexeme, numberTokens, tokens)
+
+			if state == 0 {
+				index--
+			}
+		} else if state == 14 {
+			state, numberTokens, tokens = l.q14(lexeme, numberTokens, tokens)
 
 			if state == 0 {
 				index--
@@ -222,7 +236,7 @@ func (l *Lexer) ParseLine(line string) []Token {
 		}
 
 		if len(tokens) > 0 && tokens[len(tokens)-1].Type == TOKEN_ERROR {
-			return tokens
+			break
 		}
 
 		index++
@@ -325,7 +339,7 @@ func (l Lexer) q5(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 func (l Lexer) q6(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.numberDict[lexeme]; ok {
-		if val.state != 12 {
+		if val.state != 13 {
 			return 6, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 		}
 
@@ -337,11 +351,11 @@ func (l Lexer) q6(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 func (l Lexer) q7(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme == "e" {
-		return 11, numberTokens, tokens
+		return 12, numberTokens, tokens
 	}
 
 	if val, ok := l.numberDict[lexeme]; ok {
-		if val.state != 12 {
+		if val.state != 13 {
 			return 7, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 		}
 
@@ -364,7 +378,7 @@ func (l Lexer) isOneState(lexeme string, states []int) (numberState, bool) {
 
 func (l Lexer) q8(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{12}); ok {
+		if _, ok := l.isOneState(lexeme, []int{13}); ok {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
@@ -376,11 +390,19 @@ func (l Lexer) q8(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 func (l Lexer) q9(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme == "e" {
-		return 10, numberTokens, tokens
+		return 11, numberTokens, tokens
+	}
+
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+}
+
+func (l Lexer) q10(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+	if lexeme == "e" {
+		return 11, numberTokens, tokens
 	}
 
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{12}); ok {
+		if _, ok := l.isOneState(lexeme, []int{13}); ok {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
@@ -390,7 +412,7 @@ func (l Lexer) q9(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 	return 0, numberTokens, tokens
 }
 
-func (l Lexer) q10(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+func (l Lexer) q11(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.isOneState(lexeme, []int{6, 7}); ok {
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 	}
@@ -398,7 +420,7 @@ func (l Lexer) q10(lexeme string, numberTokens []Token, tokens []Token) (int, []
 	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 }
 
-func (l Lexer) q11(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+func (l Lexer) q12(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.isOneState(lexeme, []int{6}); ok {
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 	}
@@ -406,28 +428,28 @@ func (l Lexer) q11(lexeme string, numberTokens []Token, tokens []Token) (int, []
 	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 }
 
-func (l Lexer) q12(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme == "e" {
-		return 13, numberTokens, tokens
+		return 14, numberTokens, tokens
 	}
 
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9}); ok {
+		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
-		return 12, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 13, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 	}
 
 	return 0, numberTokens, tokens
 }
 
-func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+func (l Lexer) q14(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9}); ok {
+		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
-		return 12, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 14, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
 	}
 
 	return 0, numberTokens, tokens

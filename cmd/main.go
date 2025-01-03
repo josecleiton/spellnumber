@@ -18,7 +18,7 @@ func init() {
 func main() {
 	lexer := spellnumber.NewLexer(nil, verboseFlag)
 
-	tokens := lexer.ParseLine("duzentos milhoes e trezentos e cinquenta e um mais fatorial de cinco")
+	tokens := lexer.ParseLine("cento")
 
 	fmt.Printf("Tokens: %v\n", tokens)
 
