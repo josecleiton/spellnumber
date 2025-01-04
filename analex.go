@@ -528,5 +528,14 @@ func (l Lexer) getNumberTokenFromList(numberTokens []Token) Token {
 		number = number.Add(number, currentNumber)
 	}
 
+	// Adjust in case of 'mil' not prefixed by {unidade} | {dezena} | {centena}
+	if order == 4 {
+		milhar := big.NewInt(1000)
+
+		if number.Cmp(milhar) == -1 {
+			number = big.NewInt(0).Add(number, milhar)
+		}
+	}
+
 	return Token{Type: TOKEN_NUMBER_PARSED, Value: number.String(), Number: number}
 }
