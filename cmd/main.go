@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 
 	spellnumber "github.com/josecleiton/spellnumber"
 )
@@ -18,13 +19,17 @@ func init() {
 func main() {
 	lexer := spellnumber.NewLexer(nil, verboseFlag)
 
-	tokens := lexer.ParseLine("cento")
+	tokens := lexer.ParseLine("dois vezes abre parentese quatro mais cinco fecha parentese")
 
-	fmt.Printf("Tokens: %v\n", tokens)
+	log.Printf("Tokens: %v\n", tokens)
 
 	parser := spellnumber.NewParser(tokens, verboseFlag)
 
-	result := parser.Parse()
+	result, err := parser.Parse()
+
+	if err != nil {
+		log.Fatalf("Parser Error: %v\n", err)
+	}
 
 	fmt.Printf("Result: %v\n", result)
 

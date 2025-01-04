@@ -2,6 +2,7 @@ package spellnumber
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -64,6 +65,7 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 			"um":              {state: 6, value: "1"},
 			"dois":            {state: 6, value: "2"},
 			"tres":            {state: 6, value: "3"},
+			"três":            {state: 6, value: "3"},
 			"quatro":          {state: 6, value: "4"},
 			"cinco":           {state: 6, value: "5"},
 			"seis":            {state: 6, value: "6"},
@@ -209,6 +211,12 @@ func (l *Lexer) ParseLine(line string) []Token {
 			if state == 0 {
 				index--
 			}
+		} else if state == 9 {
+			state, numberTokens, tokens = l.q9(lexeme, numberTokens, tokens)
+
+			if state == 0 {
+				index--
+			}
 		} else if state == 10 {
 			state, numberTokens, tokens = l.q10(lexeme, numberTokens, tokens)
 
@@ -232,7 +240,7 @@ func (l *Lexer) ParseLine(line string) []Token {
 				index--
 			}
 		} else {
-			tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+			tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: fmt.Sprintf("Lexema '%s' não reconhecido", lexeme)})
 		}
 
 		if len(tokens) > 0 && tokens[len(tokens)-1].Type == TOKEN_ERROR {
@@ -264,6 +272,10 @@ func (l Lexer) q0(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 0, numberTokens, append(tokens, Token{Type: TOKEN_TIMES, Value: "*"})
 	}
 
+	if lexeme == "mod" {
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_MOD, Value: "%"})
+	}
+
 	if lexeme == "elevado" {
 		return 1, numberTokens, tokens
 	}
@@ -288,12 +300,12 @@ func (l Lexer) q0(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: fmt.Sprintf("Lexema '%s' não reconhecido", lexeme)})
 }
 
 func (l Lexer) q1(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme != "por" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Expected 'por' after 'elevado'"})
 	}
 
 	return 0, numberTokens, append(tokens, Token{Type: TOKEN_POWER, Value: "^"})
@@ -309,7 +321,7 @@ func (l Lexer) q2(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 0, numberTokens, append(tokens, Token{Type: TOKEN_LEFT_BRACKET, Value: "("})
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'parentese(s)' após 'abre'"})
 }
 
 func (l Lexer) q3(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -317,12 +329,12 @@ func (l Lexer) q3(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 0, numberTokens, append(tokens, Token{Type: TOKEN_RIGHT_BRACKET, Value: ")"})
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'parentese(s)' após 'fecha'"})
 }
 
 func (l Lexer) q4(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme != "de" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'de' após 'fatorial'"})
 
 	}
 
@@ -331,7 +343,7 @@ func (l Lexer) q4(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 func (l Lexer) q5(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if lexeme != "por" {
-		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'por' após 'dividido'"})
 	}
 
 	return 0, numberTokens, append(tokens, Token{Type: TOKEN_DIVIDE, Value: "/"})
@@ -340,7 +352,7 @@ func (l Lexer) q5(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 func (l Lexer) q6(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.numberDict[lexeme]; ok {
 		if val.state != 13 {
-			return 6, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+			return 6, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Não é esperado um número após '{unidade}'"})
 		}
 
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
@@ -356,7 +368,7 @@ func (l Lexer) q7(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 
 	if val, ok := l.numberDict[lexeme]; ok {
 		if val.state != 13 {
-			return 7, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+			return 7, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Não é esperado um número após '{dezena}'"})
 		}
 
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
@@ -382,7 +394,7 @@ func (l Lexer) q8(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
-		return 8, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 8, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Não é esperado U/D/C após 'cem'"})
 	}
 
 	return 0, numberTokens, tokens
@@ -393,7 +405,7 @@ func (l Lexer) q9(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 11, numberTokens, tokens
 	}
 
-	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'e' após 'cento'"})
 }
 
 func (l Lexer) q10(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -406,7 +418,7 @@ func (l Lexer) q10(lexeme string, numberTokens []Token, tokens []Token) (int, []
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
-		return 8, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 8, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'e' ou milhar após '{centena}'"})
 	}
 
 	return 0, numberTokens, tokens
@@ -417,7 +429,7 @@ func (l Lexer) q11(lexeme string, numberTokens []Token, tokens []Token) (int, []
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 	}
 
-	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado dezena ou unidade após '{centena} e'"})
 }
 
 func (l Lexer) q12(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -425,7 +437,7 @@ func (l Lexer) q12(lexeme string, numberTokens []Token, tokens []Token) (int, []
 		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 	}
 
-	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+	return 10, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado unidade após '{dezena} e'"})
 }
 
 func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -438,7 +450,7 @@ func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
-		return 13, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 13, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado 'e' ou U/C/D depois de '{milhar}'"})
 	}
 
 	return 0, numberTokens, tokens
@@ -449,7 +461,7 @@ func (l Lexer) q14(lexeme string, numberTokens []Token, tokens []Token) (int, []
 		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
-		return 14, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme})
+		return 14, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado U/C/D depois de '{milhar} e'"})
 	}
 
 	return 0, numberTokens, tokens
