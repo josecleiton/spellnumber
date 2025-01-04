@@ -10,6 +10,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
+
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 type TokenType int
@@ -65,7 +70,6 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 			"um":              {state: 6, value: "1"},
 			"dois":            {state: 6, value: "2"},
 			"tres":            {state: 6, value: "3"},
-			"três":            {state: 6, value: "3"},
 			"quatro":          {state: 6, value: "4"},
 			"cinco":           {state: 6, value: "5"},
 			"seis":            {state: 6, value: "6"},
@@ -141,12 +145,21 @@ func (l *Lexer) NextLine() {
 	l.ParseLine(line)
 }
 
-func (l *Lexer) ParseLine(line string) []Token {
+func (l *Lexer) ParseLine(rawLine string) ([]Token, error) {
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	line, _, err := transform.String(t, rawLine)
+
+	if err != nil {
+		return []Token{}, err
+	}
+
 	if !l.verbose {
 		log.SetOutput(io.Discard)
 
 		defer log.SetOutput(os.Stdout)
 	}
+
+	line = strings.Join(strings.Fields(strings.ToLower(line)), " ")
 
 	tokens := make([]Token, 0, 64)
 
@@ -263,7 +276,7 @@ func (l *Lexer) ParseLine(line string) []Token {
 		numberTokens = []Token{}
 	}
 
-	return tokens
+	return tokens, nil
 }
 
 func (l Lexer) q0(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
@@ -455,7 +468,7 @@ func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []
 	}
 
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok {
+		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok || val.value == "1000" {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 
@@ -467,7 +480,7 @@ func (l Lexer) q13(lexeme string, numberTokens []Token, tokens []Token) (int, []
 
 func (l Lexer) q14(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
 	if val, ok := l.numberDict[lexeme]; ok {
-		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok {
+		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10}); ok || val.value == "1000" {
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 		return 14, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado U/C/D depois de '{milhar} e'"})
@@ -506,6 +519,11 @@ func (l Lexer) getNumberTokenFromList(numberTokens []Token) Token {
 		if tokenOrder >= orderMilhar {
 			if order > orderMilhar && tokenOrder <= order {
 				return Token{Type: TOKEN_ERROR, Value: "0"}
+			}
+
+			if len(number.String()) < order {
+
+				number = big.NewInt(0).Add(number, big.NewInt(1).Exp(big.NewInt(10), big.NewInt(int64(order-1)), nil))
 			}
 
 			order = tokenOrder
