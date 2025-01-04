@@ -19,7 +19,7 @@ func init() {
 func main() {
 	lexer := spellnumber.NewLexer(nil, verboseFlag)
 
-	tokens := lexer.ParseLine("dois vezes abre parentese quatro mais cinco fecha parentese")
+	tokens := lexer.ParseLine("zero")
 
 	log.Printf("Tokens: %v\n", tokens)
 

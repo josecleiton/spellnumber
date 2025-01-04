@@ -129,6 +129,7 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 			"tridecilhoes":    {state: 13, value: "1000000000000000000000000000000000000000000"},
 			"quatradecilhao":  {state: 13, value: "1000000000000000000000000000000000000000000000"},
 			"quatradecilhoes": {state: 13, value: "1000000000000000000000000000000000000000000000"},
+			"zero":            {state: 15, value: "0"},
 			"e":               {state: 200, value: "0"},
 		},
 	}
@@ -239,6 +240,12 @@ func (l *Lexer) ParseLine(line string) []Token {
 			if state == 0 {
 				index--
 			}
+		} else if state == 15 {
+			state, numberTokens, tokens = l.q15(lexeme, numberTokens, tokens)
+
+			if state == 0 {
+				index--
+			}
 		} else {
 			tokens = append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: fmt.Sprintf("Lexema '%s' não reconhecido", lexeme)})
 		}
@@ -296,8 +303,10 @@ func (l Lexer) q0(lexeme string, numberTokens []Token, tokens []Token) (int, []T
 		return 5, numberTokens, tokens
 	}
 
-	if val, ok := l.numberDict[lexeme]; ok && (val.state >= 6 && val.state <= 10) || val.value == "1000" {
-		return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
+	if val, ok := l.numberDict[lexeme]; ok {
+		if _, ok := l.isOneState(lexeme, []int{6, 7, 8, 9, 10, 15}); ok || val.value == "1000" {
+			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
+		}
 	}
 
 	return 0, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: fmt.Sprintf("Lexema '%s' não reconhecido", lexeme)})
@@ -462,6 +471,14 @@ func (l Lexer) q14(lexeme string, numberTokens []Token, tokens []Token) (int, []
 			return val.state, append(numberTokens, Token{Type: TOKEN_NUMBER, Value: val.value, Spell: lexeme}), tokens
 		}
 		return 14, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Esperado U/C/D depois de '{milhar} e'"})
+	}
+
+	return 0, numberTokens, tokens
+}
+
+func (l Lexer) q15(lexeme string, numberTokens []Token, tokens []Token) (int, []Token, []Token) {
+	if _, ok := l.numberDict[lexeme]; ok {
+		return 15, numberTokens, append(tokens, Token{Type: TOKEN_ERROR, Value: lexeme, Spell: "Não esperado número após 'zero'"})
 	}
 
 	return 0, numberTokens, tokens
