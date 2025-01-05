@@ -19,7 +19,7 @@ func init() {
 func main() {
 	lexer := spellnumber.NewLexer(nil, verboseFlag)
 
-	tokens, err := lexer.ParseLine("trezentos milhões e mil e duzentos e três vezes     zero")
+	tokens, err := lexer.ParseLine("trezentos milhões e mil e duzentos e três")
 
 	if err != nil {
 		log.Fatalf("Lexer Error: %v\n", err)

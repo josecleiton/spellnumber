@@ -3,8 +3,10 @@ package spellnumber
 import (
 	"io"
 	"log"
+	"math"
 	"math/big"
 	"os"
+	"strings"
 )
 
 type Speller struct {
@@ -18,7 +20,7 @@ func NewSpeller(verbose bool) *Speller {
 	return &Speller{
 		and: "e",
 		numbers: map[int]string{
-			0:   "zero",
+			-1:  "zero",
 			1:   "um",
 			2:   "dois",
 			3:   "tres",
@@ -57,6 +59,7 @@ func NewSpeller(verbose bool) *Speller {
 			900: "novecentos",
 		},
 		thousands: map[int][]string{
+			0:  {"", ""},
 			1:  {"mil"},
 			2:  {"milhao", "milhoes"},
 			3:  {"bilhao", "bilhoes"},
@@ -86,10 +89,58 @@ func (s Speller) Spell(number *big.Int) string {
 
 	numberStr := number.String()
 
+	numberStrLen := len(numberStr)
+
 	// Support until 10^49
-	if len(numberStr) > 49 {
+	if numberStrLen > 49 {
 		return numberStr
 	}
 
-	return "not implemented"
+	if numberStr == "0" {
+		return s.numbers[-1]
+	}
+
+	builder := strings.Builder{}
+
+	pluralIdx := 0
+
+	for i := 0; i < len(numberStr); i++ {
+		if i > 0 {
+			builder.WriteString(" ")
+
+			builder.WriteString(s.and)
+			builder.WriteString(" ")
+		}
+
+		currentNumber := int(numberStr[i] - '0')
+
+		if currentNumber > 1 {
+			pluralIdx = 1
+		}
+
+		numberPartIdx := (numberStrLen - i - 1) % 3
+		order := (len(numberStr) - i - 1) / 3
+
+		if numberPartIdx == 1 && currentNumber == 1 {
+			currentNumber = 10 + int(numberStr[i+1]-'0')
+
+			numberPartIdx = 0
+			i++
+		} else {
+			currentNumber = currentNumber * int(math.Pow(10, float64(numberPartIdx)))
+		}
+
+		if !(currentNumber == 1 && numberPartIdx == 0) {
+			builder.WriteString(s.numbers[currentNumber])
+		}
+
+		if numberPartIdx == 0 {
+			builder.WriteString(s.thousands[order][pluralIdx])
+
+			pluralIdx = 0
+
+		}
+	}
+
+	return builder.String()
 }
