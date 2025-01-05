@@ -104,21 +104,29 @@ func (s Speller) Spell(number *big.Int) string {
 
 	pluralIdx := 0
 
-	for i := 0; i < len(numberStr); i++ {
-		if i > 0 {
-			builder.WriteString(" ")
-
-			builder.WriteString(s.and)
-			builder.WriteString(" ")
+	addAnd := func(i int) {
+		if i == 0 || i > len(numberStr)-1 {
+			return
 		}
 
+		builder.WriteString(" ")
+		builder.WriteString(s.and)
+		builder.WriteString(" ")
+	}
+
+	for i := 0; i < len(numberStr); i++ {
 		currentNumber := int(numberStr[i] - '0')
+
+		numberPartIdx := (numberStrLen - i - 1) % 3
 
 		if currentNumber > 1 {
 			pluralIdx = 1
+
+			if numberPartIdx < 2 {
+				addAnd(i)
+			}
 		}
 
-		numberPartIdx := (numberStrLen - i - 1) % 3
 		order := (len(numberStr) - i - 1) / 3
 
 		if numberPartIdx == 1 && currentNumber == 1 {
@@ -132,13 +140,19 @@ func (s Speller) Spell(number *big.Int) string {
 
 		if !(currentNumber == 1 && numberPartIdx == 0) {
 			builder.WriteString(s.numbers[currentNumber])
+
 		}
 
-		if numberPartIdx == 0 {
+		if numberPartIdx == 0 && order > 0 {
+			if i < len(numberStr)-1 {
+				builder.WriteString(" ")
+			}
+
 			builder.WriteString(s.thousands[order][pluralIdx])
 
 			pluralIdx = 0
 
+			addAnd(i)
 		}
 	}
 
