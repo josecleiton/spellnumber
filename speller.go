@@ -119,14 +119,6 @@ func (s Speller) Spell(number *big.Int) string {
 
 		numberPartIdx := (numberStrLen - i - 1) % 3
 
-		if currentNumber > 1 {
-			pluralIdx = 1
-
-			if numberPartIdx < 2 {
-				addAnd(i)
-			}
-		}
-
 		order := (len(numberStr) - i - 1) / 3
 
 		if numberPartIdx == 1 && currentNumber == 1 {
@@ -138,9 +130,16 @@ func (s Speller) Spell(number *big.Int) string {
 			currentNumber = currentNumber * int(math.Pow(10, float64(numberPartIdx)))
 		}
 
+		if currentNumber > 1 {
+			pluralIdx = 1
+
+			if numberPartIdx < 2 {
+				addAnd(i)
+			}
+		}
+
 		if !(currentNumber == 1 && numberPartIdx == 0) {
 			builder.WriteString(s.numbers[currentNumber])
-
 		}
 
 		if numberPartIdx == 0 && order > 0 {
