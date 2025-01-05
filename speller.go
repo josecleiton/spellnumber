@@ -138,12 +138,17 @@ func (s Speller) Spell(number *big.Int) string {
 			}
 		}
 
+		addedCurrentNumber := false
+
 		if !(currentNumber == 1 && numberPartIdx == 0) {
 			builder.WriteString(s.numbers[currentNumber])
+
+			addedCurrentNumber = true
 		}
 
 		if numberPartIdx == 0 && order > 0 {
-			if i < len(numberStr)-1 {
+
+			if i < len(numberStr)-1 && addedCurrentNumber {
 				builder.WriteString(" ")
 			}
 
