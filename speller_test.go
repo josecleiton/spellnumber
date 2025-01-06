@@ -1,11 +1,9 @@
-package spellnumber_test
+package spellnumber
 
 import (
 	"testing"
 
 	"math/big"
-
-	"github.com/josecleiton/spellnumber"
 )
 
 func TestSpellerSpell(t *testing.T) {
@@ -73,7 +71,7 @@ func TestSpellerSpell(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			speller := spellnumber.NewSpeller()
+			speller := NewSpeller()
 			result := speller.Spell(test.input)
 
 			if result != test.expected {
