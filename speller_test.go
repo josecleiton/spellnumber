@@ -50,6 +50,11 @@ func TestSpellerSpell(t *testing.T) {
 			expected: "menos dezesseis",
 		},
 		{
+			name:     "Negative zero",
+			input:    big.NewInt(1).Mul(big.NewInt(-1), big.NewInt(0)),
+			expected: "zero",
+		},
+		{
 			name:     "Complex number",
 			input:    big.NewInt(32),
 			expected: "trinta e dois",
