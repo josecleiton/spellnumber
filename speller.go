@@ -14,6 +14,8 @@ type Speller struct {
 	numbers   map[int]string
 	and       string
 	negative  string
+	hundred   string
+	hundreds  string
 	verbose   bool
 }
 
@@ -21,6 +23,8 @@ func NewSpeller() *Speller {
 	return &Speller{
 		and:      "e",
 		negative: "menos",
+		hundred:  "cem",
+		hundreds: "cento",
 		numbers: map[int]string{
 			-1:  "zero",
 			1:   "um",
@@ -50,7 +54,6 @@ func NewSpeller() *Speller {
 			70:  "setenta",
 			80:  "oitenta",
 			90:  "noventa",
-			100: "cem",
 			200: "duzentos",
 			300: "trezentos",
 			400: "quatrocentos",
@@ -62,7 +65,7 @@ func NewSpeller() *Speller {
 		},
 		thousands: map[int][]string{
 			0:  {"", ""},
-			1:  {"mil"},
+			1:  {"mil", "mil"},
 			2:  {"milhao", "milhoes"},
 			3:  {"bilhao", "bilhoes"},
 			4:  {"trilhao", "trilhoes"},
@@ -159,7 +162,13 @@ func (s Speller) Spell(number *big.Int) string {
 		addedCurrentNumber := false
 
 		if !(currentNumber == 1 && numberPartIdx == 0 && order == 1) {
-			builder.WriteString(s.numbers[currentNumber])
+			if currentNumber != 100 {
+				builder.WriteString(s.numbers[currentNumber])
+			} else if numberStr[i+1] == '0' && numberStr[i+2] == '0' {
+				builder.WriteString(s.hundred)
+			} else {
+				builder.WriteString(s.hundreds)
+			}
 
 			addedCurrentNumber = true
 
