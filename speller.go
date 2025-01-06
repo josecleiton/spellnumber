@@ -13,12 +13,14 @@ type Speller struct {
 	thousands map[int][]string
 	numbers   map[int]string
 	and       string
+	negative  string
 	verbose   bool
 }
 
 func NewSpeller() *Speller {
 	return &Speller{
-		and: "e",
+		and:      "e",
+		negative: "menos",
 		numbers: map[int]string{
 			-1:  "zero",
 			1:   "um",
@@ -91,6 +93,14 @@ func (s Speller) Spell(number *big.Int) string {
 		defer log.SetOutput(os.Stdout)
 	}
 
+	negativeSign := ""
+
+	if number.Sign() < 0 {
+		negativeSign = s.negative + " "
+
+		number = number.Abs(number)
+	}
+
 	numberStr := number.String()
 
 	numberStrLen := len(numberStr)
@@ -105,6 +115,8 @@ func (s Speller) Spell(number *big.Int) string {
 	}
 
 	builder := strings.Builder{}
+
+	builder.WriteString(negativeSign)
 
 	pluralIdx := 0
 
