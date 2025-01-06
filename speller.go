@@ -130,6 +130,8 @@ func (s Speller) Spell(number *big.Int) string {
 		builder.WriteString(" ")
 	}
 
+	evaluatedOrder := make(map[int]bool, numberStrLen)
+
 	for i := 0; i < len(numberStr); i++ {
 		currentNumber := int(numberStr[i] - '0')
 
@@ -149,7 +151,7 @@ func (s Speller) Spell(number *big.Int) string {
 		if currentNumber > 1 {
 			pluralIdx = 1
 
-			if numberPartIdx < 2 {
+			if val, ok := evaluatedOrder[order]; ok && val && numberPartIdx < 2 {
 				addAnd(i)
 			}
 		}
@@ -160,6 +162,8 @@ func (s Speller) Spell(number *big.Int) string {
 			builder.WriteString(s.numbers[currentNumber])
 
 			addedCurrentNumber = true
+
+			evaluatedOrder[order] = true
 		}
 
 		if numberPartIdx == 0 && order > 0 {
