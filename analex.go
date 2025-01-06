@@ -142,10 +142,20 @@ func (l *Lexer) SetVerbose(verbose bool) {
 	l.verbose = verbose
 }
 
-func (l *Lexer) NextLine() {
-	line, _ := l.scannerStdIn.ReadString('\n')
+func (l *Lexer) NextLine() ([]Token, error) {
+	line, err := l.scannerStdIn.ReadString('\n')
 
-	l.ParseLine(line)
+	if err != nil {
+		return []Token{}, err
+	}
+
+	line = strings.TrimSuffix(line, "\n")
+
+	if line == "q" || line == "" {
+		return []Token{}, nil
+	}
+
+	return l.ParseLine(line)
 }
 
 func (l *Lexer) ParseLine(rawLine string) ([]Token, error) {
@@ -186,10 +196,6 @@ func (l *Lexer) ParseLine(rawLine string) ([]Token, error) {
 
 		if l.verbose {
 			log.Printf("state: %d | lexeme: %s\n", state, lexeme)
-		}
-
-		if strings.Contains(lexeme, "\n") {
-			lexeme = strings.ReplaceAll(lexeme, "\n", "")
 		}
 
 		if state == 0 {

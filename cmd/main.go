@@ -20,27 +20,34 @@ func main() {
 	lexer := spellnumber.NewLexer(nil)
 	lexer.SetVerbose(verboseFlag)
 
-	tokens, err := lexer.ParseLine("menos trezentos milhões e mil e duzentos e três")
+	for {
+		tokens, err := lexer.NextLine()
 
-	if err != nil {
-		log.Fatalf("Lexer Error: %v\n", err)
+		if err != nil {
+			log.Fatalf("Lexer Error: %v\n", err)
+		}
+
+		if len(tokens) == 0 {
+			// EOF
+			return
+		}
+
+		log.Printf("Tokens: %v\n", tokens)
+
+		parser := spellnumber.NewParser(tokens)
+		parser.SetVerbose(verboseFlag)
+
+		result, err := parser.Parse()
+
+		if err != nil {
+			log.Fatalf("Parser Error: %v\n", err)
+		}
+
+		fmt.Printf("Result: %v\n", result)
+
+		speller := spellnumber.NewSpeller()
+		speller.SetVerbose(verboseFlag)
+
+		fmt.Printf("Spell: %v\n", speller.Spell(result))
 	}
-
-	log.Printf("Tokens: %v\n", tokens)
-
-	parser := spellnumber.NewParser(tokens)
-	parser.SetVerbose(verboseFlag)
-
-	result, err := parser.Parse()
-
-	if err != nil {
-		log.Fatalf("Parser Error: %v\n", err)
-	}
-
-	fmt.Printf("Result: %v\n", result)
-
-	speller := spellnumber.NewSpeller()
-	speller.SetVerbose(verboseFlag)
-
-	fmt.Printf("Spell: %v\n", speller.Spell(result))
 }
