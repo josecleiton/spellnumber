@@ -156,7 +156,7 @@ func (s Speller) Spell(number *big.Int) string {
 
 		addedCurrentNumber := false
 
-		if !(currentNumber == 1 && numberPartIdx == 0) {
+		if !(currentNumber == 1 && numberPartIdx == 0 && order == 1) {
 			builder.WriteString(s.numbers[currentNumber])
 
 			addedCurrentNumber = true
