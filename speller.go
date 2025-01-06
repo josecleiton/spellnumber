@@ -16,7 +16,7 @@ type Speller struct {
 	verbose   bool
 }
 
-func NewSpeller(verbose bool) *Speller {
+func NewSpeller() *Speller {
 	return &Speller{
 		and: "e",
 		numbers: map[int]string{
@@ -78,6 +78,10 @@ func NewSpeller(verbose bool) *Speller {
 		},
 	}
 
+}
+
+func (s *Speller) SetVerbose(verbose bool) {
+	s.verbose = verbose
 }
 
 func (s Speller) Spell(number *big.Int) string {

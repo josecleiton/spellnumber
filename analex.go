@@ -56,7 +56,7 @@ type numberState struct {
 	value string
 }
 
-func NewLexer(inputFile *os.File, verbose bool) *Lexer {
+func NewLexer(inputFile *os.File) *Lexer {
 	file := inputFile
 
 	if file == nil {
@@ -64,7 +64,6 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 	}
 
 	return &Lexer{
-		verbose:      verbose,
 		scannerStdIn: bufio.NewReader(file),
 		numberDict: map[string]numberState{
 			"um":              {state: 6, value: "1"},
@@ -137,6 +136,10 @@ func NewLexer(inputFile *os.File, verbose bool) *Lexer {
 			"e":               {state: 200, value: "0"},
 		},
 	}
+}
+
+func (l *Lexer) SetVerbose(verbose bool) {
+	l.verbose = verbose
 }
 
 func (l *Lexer) NextLine() {

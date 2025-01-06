@@ -15,8 +15,12 @@ type Parser struct {
 	verbose bool
 }
 
-func NewParser(tokens []Token, verbose bool) *Parser {
-	return &Parser{tokens: tokens, verbose: verbose}
+func NewParser(tokens []Token) *Parser {
+	return &Parser{tokens: tokens}
+}
+
+func (p *Parser) SetVerbose(verbose bool) {
+	p.verbose = verbose
 }
 
 func (p *Parser) Parse() (*big.Int, error) {

@@ -17,7 +17,8 @@ func init() {
 }
 
 func main() {
-	lexer := spellnumber.NewLexer(nil, verboseFlag)
+	lexer := spellnumber.NewLexer(nil)
+	lexer.SetVerbose(verboseFlag)
 
 	tokens, err := lexer.ParseLine("trezentos milhões e mil e duzentos e três")
 
@@ -27,7 +28,8 @@ func main() {
 
 	log.Printf("Tokens: %v\n", tokens)
 
-	parser := spellnumber.NewParser(tokens, verboseFlag)
+	parser := spellnumber.NewParser(tokens)
+	parser.SetVerbose(verboseFlag)
 
 	result, err := parser.Parse()
 
@@ -37,7 +39,8 @@ func main() {
 
 	fmt.Printf("Result: %v\n", result)
 
-	speller := spellnumber.NewSpeller(verboseFlag)
+	speller := spellnumber.NewSpeller()
+	speller.SetVerbose(verboseFlag)
 
 	fmt.Printf("Spell: %v\n", speller.Spell(result))
 }
