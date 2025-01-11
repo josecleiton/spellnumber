@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"math/big"
 	"os"
 	"regexp"
@@ -118,6 +117,8 @@ func NewLexer(inputFile *os.File) *Lexer {
 			"sextilhoes":      {state: 13, value: "1000000000000000000000"},
 			"septilhao":       {state: 13, value: "1000000000000000000000000"},
 			"septilhoes":      {state: 13, value: "1000000000000000000000000"},
+			"setilhao":        {state: 13, value: "1000000000000000000000000"},
+			"setilhoes":       {state: 13, value: "1000000000000000000000000"},
 			"octilhao":        {state: 13, value: "1000000000000000000000000000"},
 			"octilhoes":       {state: 13, value: "1000000000000000000000000000"},
 			"nonilhao":        {state: 13, value: "1000000000000000000000000000000"},
@@ -548,7 +549,9 @@ func (l Lexer) getNumberTokenFromList(numberTokens []Token) Token {
 			return Token{Type: TOKEN_ERROR, Value: "0"}
 		}
 
-		orderNumber := big.NewInt(int64(math.Pow(10, float64(order-1))))
+		exponent := big.NewInt(int64(order - 1))
+
+		orderNumber := big.NewInt(1).Exp(big.NewInt(10), exponent, nil)
 
 		currentNumber := currentUnit.Mul(currentUnit, orderNumber)
 

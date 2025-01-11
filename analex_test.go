@@ -1,6 +1,7 @@
 package spellnumber
 
 import (
+	"math/big"
 	"testing"
 )
 
@@ -63,6 +64,14 @@ func TestLexerParseLine(t *testing.T) {
 				{Type: TOKEN_LEFT_BRACKET, Value: "("},
 				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
 				{Type: TOKEN_RIGHT_BRACKET, Value: ")"},
+			},
+		},
+		{
+			name:  "4 Decilhões",
+			input: "quatro decilhoes",
+
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: big.NewInt(1).Mul(big.NewInt(4), big.NewInt(1).Exp(big.NewInt(10), big.NewInt(33), nil)).String()},
 			},
 		},
 	}
