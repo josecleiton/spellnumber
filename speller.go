@@ -1,6 +1,7 @@
 package spellnumber
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -69,10 +70,10 @@ func NewSpeller() *Speller {
 			2:  {"milhao", "milhoes"},
 			3:  {"bilhao", "bilhoes"},
 			4:  {"trilhao", "trilhoes"},
-			5:  {"quadrilhao", "quadrilhoes"},
+			5:  {"quatrilhao", "quatrilhoes"},
 			6:  {"quintilhao", "quintilhoes"},
 			7:  {"sextilhao", "sextilhoes"},
-			8:  {"septilhao", "septilhoes"},
+			8:  {"setilhao", "setilhoes"},
 			9:  {"octilhao", "octilhoes"},
 			10: {"nonilhao", "nonilhoes"},
 			11: {"decilhao", "decilhoes"},
@@ -87,6 +88,19 @@ func NewSpeller() *Speller {
 
 func (s *Speller) SetVerbose(verbose bool) {
 	s.verbose = verbose
+}
+
+func (s Speller) formatNumberStr(numberStr string) string {
+	length := len(numberStr)
+	rest := length % 3
+
+	if rest == 0 {
+		return numberStr
+	}
+
+	formatStr := fmt.Sprintf("%s%d%s", "%0", length+3-rest, "s")
+
+	return fmt.Sprintf(formatStr, numberStr)
 }
 
 func (s Speller) Spell(number *big.Int) string {
@@ -117,76 +131,85 @@ func (s Speller) Spell(number *big.Int) string {
 		return s.numbers[-1]
 	}
 
+	formattedNumber := s.formatNumberStr(numberStr)
+
 	builder := strings.Builder{}
 
 	builder.WriteString(negativeSign)
 
-	pluralIdx := 0
-
-	addAnd := func(i int) {
-		if i == 0 || i > len(numberStr)-1 {
-			return
-		}
-
+	addAnd := func() {
 		builder.WriteString(" ")
 		builder.WriteString(s.and)
 		builder.WriteString(" ")
 	}
 
-	evaluatedOrder := make(map[int]bool, numberStrLen)
+	formattedNumberLen := len(formattedNumber)
 
-	for i := 0; i < len(numberStr); i++ {
-		currentNumber := int(numberStr[i] - '0')
+	for i := 0; i < formattedNumberLen; i += 3 {
+		nStr := formattedNumber[i : i+3]
 
-		numberPartIdx := (numberStrLen - i - 1) % 3
-
-		order := (len(numberStr) - i - 1) / 3
-
-		if numberPartIdx == 1 && currentNumber == 1 {
-			currentNumber = 10 + int(numberStr[i+1]-'0')
-
-			numberPartIdx = 0
-			i++
-		} else {
-			currentNumber = currentNumber * int(math.Pow(10, float64(numberPartIdx)))
+		if nStr == "000" {
+			continue
 		}
 
-		if currentNumber > 1 {
-			pluralIdx = 1
+		order := (formattedNumberLen - i - 1) / 3
 
-			if val, ok := evaluatedOrder[order]; ok && val && numberPartIdx < 2 {
-				addAnd(i)
-			}
+		pluralIdx := 0
+
+		if i > 0 {
+			addAnd()
 		}
 
-		addedCurrentNumber := false
-
-		if !(currentNumber == 1 && numberPartIdx == 0 && order == 1) {
-			if currentNumber != 100 {
-				builder.WriteString(s.numbers[currentNumber])
-			} else if numberStr[i+1] == '0' && numberStr[i+2] == '0' {
-				builder.WriteString(s.hundred)
-			} else {
-				builder.WriteString(s.hundreds)
-			}
-
-			addedCurrentNumber = true
-
-			evaluatedOrder[order] = true
-		}
-
-		if numberPartIdx == 0 && order > 0 {
-
-			if i < len(numberStr)-1 && addedCurrentNumber {
-				builder.WriteString(" ")
-			}
-
+		// mil
+		if order == 1 && nStr == "001" {
 			builder.WriteString(s.thousands[order][pluralIdx])
-
-			pluralIdx = 0
-
-			addAnd(i)
+			continue
 		}
+
+		hadNumber := false
+		for j := i; j < i+3; j++ {
+			if formattedNumber[j] == '0' {
+				continue
+			}
+
+			if j != i && hadNumber {
+				addAnd()
+			}
+
+			n := int(formattedNumber[j]-'0') * int(math.Pow10(2-(j-i)))
+
+			hadNumber = true
+
+			// dez até dezenove
+			if n == 10 {
+				n = n + int(formattedNumber[j+1]-'0')
+
+				j++
+			}
+
+			if n > 1 {
+				pluralIdx = 1
+			}
+
+			if n == 100 {
+				if strings.HasSuffix(nStr, "00") {
+					builder.WriteString(s.hundred)
+					break
+				}
+
+				builder.WriteString(s.hundreds)
+				continue
+			}
+
+			builder.WriteString(s.numbers[n])
+		}
+
+		if order == 0 {
+			continue
+		}
+
+		builder.WriteString(" ")
+		builder.WriteString(s.thousands[order][pluralIdx])
 	}
 
 	return builder.String()
