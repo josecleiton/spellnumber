@@ -4,6 +4,8 @@
 
 The Spellnumber project is a Go library that provides functionality for parsing and spelling out numbers in Portuguese. The library consists of several packages, including `spellnumber`, which contains the core functionality, and `cmd`, which contains a command-line interface for testing and demonstrating the library.
 
+This project is a rewrite of a C project coded in a bachelor course [analisador-extenso](https://github.com/josecleiton/analisador-extenso)
+
 ## Packages
 
 ### spellnumber
