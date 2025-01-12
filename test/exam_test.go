@@ -22,15 +22,15 @@ func TestExam(t *testing.T) {
 		},
 		{
 			input:    "abre parentese treze mais cinco vezes abre parentese cinco menos abre parentese um mais sete fecha parentese fecha parentese vezes quatro fecha parentese mais um decilhao vezes trinta e um mais um sextilhao vezes fatorial de cinco",
-			expected: "trinta e um decilhoes e cento e dezenove sextilhoes e novecentos e noventa e nove quintilhoes e novecentos e noventa e nove quatrilhoes e novecentos e noventa e nove trilhoes e novecentos e noventa e nove bilhoes e novecentos e noventa e nove milhoes e novecentos e noventa e nove mil e novecentos e cinquenta e tres",
+			expected: "trinta e um decilhoes cento e dezenove sextilhoes novecentos e noventa e nove quintilhoes novecentos e noventa e nove quatrilhoes novecentos e noventa e nove trilhoes novecentos e noventa e nove bilhoes novecentos e noventa e nove milhoes novecentos e noventa e nove mil e novecentos e cinquenta e tres",
 		},
 		{
 			input:    "abre parentese trezentos setilhoes mais quatro trilhoes fecha parentese vezes oito",
-			expected: "dois octilhoes e quatrocentos setilhoes e trinta e dois trilhoes",
+			expected: "dois octilhoes quatrocentos setilhoes e trinta e dois trilhoes",
 		},
 		{
 			input:    "fatorial de trinta",
-			expected: "duzentos e sessenta e cinco nonilhoes e duzentos e cinquenta e dois octilhoes e oitocentos e cinquenta e nove setilhoes e oitocentos e doze sextilhoes e cento e noventa e um quintilhoes e cinquenta e oito quatrilhoes e seiscentos e trinta e seis trilhoes e trezentos e oito bilhoes e quatrocentos e oitenta milhoes",
+			expected: "duzentos e sessenta e cinco nonilhoes duzentos e cinquenta e dois octilhoes oitocentos e cinquenta e nove setilhoes oitocentos e doze sextilhoes cento e noventa e um quintilhoes cinquenta e oito quatrilhoes seiscentos e trinta e seis trilhoes trezentos e oito bilhoes e quatrocentos e oitenta milhoes",
 		},
 		{
 			input:    "um milhao trezentos e cinquenta e sete mil novecentos e sessenta e tres dividido por cinco mil setecentos e oitenta e nove",

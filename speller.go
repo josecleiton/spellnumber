@@ -1,7 +1,6 @@
 package spellnumber
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"math"
@@ -98,9 +97,15 @@ func (s Speller) formatNumberStr(numberStr string) string {
 		return numberStr
 	}
 
-	formatStr := fmt.Sprintf("%s%d%s", "%0", length+3-rest, "s")
+	builder := strings.Builder{}
 
-	return fmt.Sprintf(formatStr, numberStr)
+	for i := 0; i < 3-rest; i++ {
+		builder.WriteString("0")
+	}
+
+	builder.WriteString(numberStr)
+
+	return builder.String()
 }
 
 func (s Speller) Spell(number *big.Int) string {
@@ -137,11 +142,7 @@ func (s Speller) Spell(number *big.Int) string {
 
 	builder.WriteString(negativeSign)
 
-	addAnd := func() {
-		builder.WriteString(" ")
-		builder.WriteString(s.and)
-		builder.WriteString(" ")
-	}
+	lastOrder := s.lastOrder(formattedNumber)
 
 	formattedNumberLen := len(formattedNumber)
 
@@ -152,12 +153,17 @@ func (s Speller) Spell(number *big.Int) string {
 			continue
 		}
 
-		order := (formattedNumberLen - i - 1) / 3
+		order := s.order(formattedNumber, i)
 
 		pluralIdx := 0
 
 		if i > 0 {
-			addAnd()
+			builder.WriteString(" ")
+
+			if lastOrder == order {
+				builder.WriteString(s.and)
+				builder.WriteString(" ")
+			}
 		}
 
 		// mil
@@ -173,7 +179,9 @@ func (s Speller) Spell(number *big.Int) string {
 			}
 
 			if j != i && hadNumber {
-				addAnd()
+				builder.WriteString(" ")
+				builder.WriteString(s.and)
+				builder.WriteString(" ")
 			}
 
 			n := int(formattedNumber[j]-'0') * int(math.Pow10(2-(j-i)))
@@ -210,7 +218,27 @@ func (s Speller) Spell(number *big.Int) string {
 
 		builder.WriteString(" ")
 		builder.WriteString(s.thousands[order][pluralIdx])
+
+		if order == lastOrder {
+			break
+		}
 	}
 
 	return builder.String()
+}
+
+func (s Speller) lastOrder(formattedNumber string) int {
+	for i := len(formattedNumber); i >= 0; i -= 3 {
+		nStr := formattedNumber[i-3 : i]
+
+		if nStr != "000" {
+			return s.order(formattedNumber, i-3)
+		}
+	}
+
+	return 0
+}
+
+func (s Speller) order(number string, i int) int {
+	return (len(number) - i - 1) / 3
 }

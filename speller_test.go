@@ -60,7 +60,7 @@ func TestSpellerSpell(t *testing.T) {
 		{
 			name:     "Large number",
 			input:    big.NewInt(123456789),
-			expected: "cento e vinte e tres milhoes e quatrocentos e cinquenta e seis mil e setecentos e oitenta e nove",
+			expected: "cento e vinte e tres milhoes quatrocentos e cinquenta e seis mil e setecentos e oitenta e nove",
 		},
 		{
 			name:     "Stupendous number",
