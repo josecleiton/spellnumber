@@ -34,12 +34,55 @@ func TestLexerParseLine(t *testing.T) {
 			},
 		},
 		{
-			name:  "Operador",
+			name:  "Operador mais",
+			input: "trinta e seis mais dois",
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "36"},
+				{Type: TOKEN_PLUS, Value: "+"},
+				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+			},
+		},
+		{
+			name:  "Operador menos",
+			input: "trinta e seis menos dois",
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "36"},
+				{Type: TOKEN_MINUS, Value: "-"},
+				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+			},
+		},
+		{
+			name:  "Operador vezes",
 			input: "trinta e seis vezes dois",
 			expected: []Token{
 				{Type: TOKEN_NUMBER_PARSED, Value: "36"},
 				{Type: TOKEN_TIMES, Value: "*"},
 				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+			},
+		},
+		{
+			name:  "Operador dividido",
+			input: "trinta e seis dividido por dois",
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "36"},
+				{Type: TOKEN_DIVIDE, Value: "/"},
+				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+			},
+		},
+		{
+			name:  "Operador mod",
+			input: "trinta e seis mod dois",
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "36"},
+				{Type: TOKEN_MOD, Value: "%"},
+				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+			},
+		},
+		{
+			name:  "centena composta",
+			input: "duzentos e tres",
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "203"},
 			},
 		},
 		{
@@ -72,6 +115,16 @@ func TestLexerParseLine(t *testing.T) {
 
 			expected: []Token{
 				{Type: TOKEN_NUMBER_PARSED, Value: big.NewInt(1).Mul(big.NewInt(4), big.NewInt(1).Exp(big.NewInt(10), big.NewInt(33), nil)).String()},
+			},
+		},
+		{
+			name:  "Elevado",
+			input: "dois elevado por quatro",
+
+			expected: []Token{
+				{Type: TOKEN_NUMBER_PARSED, Value: "2"},
+				{Type: TOKEN_POWER, Value: "^"},
+				{Type: TOKEN_NUMBER_PARSED, Value: "4"},
 			},
 		},
 	}

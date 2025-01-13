@@ -36,7 +36,7 @@ func TestParserParse(t *testing.T) {
 			expected: big.NewInt(24),
 		},
 		{
-			name: "100 * (20 + 10) = 3000",
+			name: "100 * (20 + 10) - 1 = 2999",
 			input: []Token{
 				{Type: TOKEN_NUMBER_PARSED, Number: big.NewInt(100)},
 				{Type: TOKEN_TIMES, Value: "*"},
@@ -45,8 +45,10 @@ func TestParserParse(t *testing.T) {
 				{Type: TOKEN_PLUS, Value: "+"},
 				{Type: TOKEN_NUMBER_PARSED, Number: big.NewInt(10)},
 				{Type: TOKEN_RIGHT_BRACKET, Value: ")"},
+				{Type: TOKEN_MINUS, Value: "-"},
+				{Type: TOKEN_NUMBER_PARSED, Number: big.NewInt(1)},
 			},
-			expected: big.NewInt(3000),
+			expected: big.NewInt(2999),
 		},
 		{
 			name: "100 * (20 + 10) / 2 = 1500",
@@ -119,6 +121,11 @@ func TestParserParse(t *testing.T) {
 				{Type: TOKEN_NUMBER_PARSED, Number: big.NewInt(10)},
 			},
 			expected: big.NewInt(-10),
+		},
+		{
+			name:     "nenhum token",
+			input:    []Token{},
+			expected: big.NewInt(0),
 		},
 	}
 
